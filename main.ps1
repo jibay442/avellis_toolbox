@@ -86,11 +86,11 @@ $installationChoices = @{
         }
     ) };
     5 = @{ Name = "Office 365"; Scripts = @(
-        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=O365BusinessRetail&platform=x64&language=en-us&version=O16GA" -OutFile "$env:TEMP\Office365Setup.exe" },
+        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=O365ProPlusRetail&platform=x64&language=fr-fr&version=O16GA" -OutFile "$env:TEMP\Office365Setup.exe" },
         { Start-Process "$env:TEMP\Office365Setup.exe" -Wait }
     ) };
     6 = @{ Name = "Office 2021"; Scripts = @(
-        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=ProPlus2021Retail&platform=x64&language=en-us&version=O16GA" -OutFile "$env:TEMP\Office2021Setup.exe" },
+        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=ProPlus2021Retail&platform=x64&language=fr-fr&version=O16GA" -OutFile "$env:TEMP\Office2021Setup.exe" },
         { Start-Process "$env:TEMP\Office2021Setup.exe" -Wait }
     ) };
     7 = @{ Name = "Cely Installation"; Scripts = @(
