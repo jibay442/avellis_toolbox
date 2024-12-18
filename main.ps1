@@ -1,3 +1,4 @@
+# Set Execution Policy
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # ASCII Art Stored in a Variable
