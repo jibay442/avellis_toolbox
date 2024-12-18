@@ -28,7 +28,7 @@ $installationChoices = @{
     1 = @{ Name = "Install Choco"; Scripts = @(
         { Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')) }
     ) };
-    2 = @{ Name = "Installation par défaut"; Scripts = @(
+    2 = @{ Name = "Installation par dÃ©faut"; Scripts = @(
         { choco install adobereader -y },
         { choco install googlechrome -y },
         { choco install firefox -y },
@@ -44,7 +44,7 @@ $installationChoices = @{
     3 = @{ Name = "Bitdefender"; Scripts = @(
         {
             # Prompt user for Bitdefender URL
-            $url = Read-Host "Veuillez entrer l'URL de téléchargement de Bitdefender"
+            $url = Read-Host "Veuillez entrer l'URL de tÃ©lÃ©chargement de Bitdefender"
             if (-not $url) {
                 Write-Error "Aucune URL fournie. Annulation de l'installation de Bitdefender."
                 return
@@ -54,13 +54,13 @@ $installationChoices = @{
             $idInstall = ($url -split { $_ -eq '[' -or $_ -eq ']' })[1]
             Write-Host "ID D'installation : $idInstall"
 
-            # Téléchargement install BitDefender
-            Write-Host "Téléchargement de BitDefender..."
+            # TÃ©lÃ©chargement install BitDefender
+            Write-Host "TÃ©lÃ©chargement de BitDefender..."
             Invoke-WebRequest -Uri $url -OutFile "$env:PUBLIC\Downloads\setup_bd.msi"
 
             # Installation BitDefender
             Start-Process -FilePath "c:\windows\system32\msiexec.exe" -ArgumentList "/i $env:PUBLIC\Downloads\setup_bd.msi /qn GZ_PACKAGE_ID=$idInstall REBOOT_IF_NEEDED=0" -Wait
-            Write-Host "Installation de BitDefender terminée."
+            Write-Host "Installation de BitDefender terminÃ©e."
         }
     ) };
     4 = @{ Name = "Atera"; Scripts = @(
@@ -78,7 +78,7 @@ $installationChoices = @{
                 # Execute the MSI installer silently
                 Write-Host "Launching the installer silently..." -ForegroundColor Yellow
                 Start-Process -FilePath $publicDownloadsPath -Wait
-                Write-Host "Installation d'Atera terminée."
+                Write-Host "Installation d'Atera terminÃ©e."
 
             } catch {
                 Write-Host "An error occurred during the download or installation." -ForegroundColor Red
@@ -117,13 +117,29 @@ $installationChoices = @{
             }
         }
     ) };
-    8 = @{ Name = "Tweaks par défaut"; Scripts = @(
+8 = @{
+    Name = "Tweaks par dÃ©faut"
+    Scripts = @(
         {
             # Remove GameDVR registry entry
             New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Name "InprocServer32" -force -value ""
-            Write-Host Restarting explorer.exe ...
-            $process = Get-Process -Name "explorer"
-            Stop-Process -InputObject $process
+            Write-Host "Restarting explorer.exe ..."
+            
+            # Stop explorer.exe
+            $process = Get-Process -Name "explorer" -ErrorAction SilentlyContinue
+            if ($process) {
+                Stop-Process -InputObject $process
+                Write-Host "Explorer stopped."
+            } else {
+                Write-Host "Explorer was not running."
+            }
+
+            # Wait for a moment to ensure explorer has been stopped
+            Start-Sleep -Seconds 2
+
+            # Restart explorer.exe
+            Start-Process "explorer.exe"
+            Write-Host "Explorer restarted."
         },
         {
             # Disable GameDVR
@@ -159,11 +175,27 @@ $installationChoices = @{
                     Write-Host "$key not found in Windows 10 context menu."
                 }
             }
+
+            # Restart explorer.exe after changes
             Write-Host "Restarting explorer.exe ..."
-            $process = Get-Process -Name "explorer"
-            Stop-Process -InputObject $process
+            $process = Get-Process -Name "explorer" -ErrorAction SilentlyContinue
+            if ($process) {
+                Stop-Process -InputObject $process
+                Write-Host "Explorer stopped."
+            } else {
+                Write-Host "Explorer was not running."
+            }
+
+            # Wait for a moment to ensure explorer has been stopped
+            Start-Sleep -Seconds 2
+
+            # Restart explorer.exe
+            Start-Process "explorer.exe"
+            Write-Host "Explorer restarted."
         }
-    ) };
+    )
+}
+
     9 = @{ Name = "Exit"; Scripts = @() };
 
     10 = @{ Name = "Microsoft Activation Scripts (MAS)"; Scripts = @(
@@ -186,13 +218,13 @@ $installationChoices = @{
 }
 
 # Display menu options
-Write-Host "Sélectionnez une option d'installation :"
+Write-Host "SÃ©lectionnez une option d'installation :"
 foreach ($key in $installationChoices.Keys) {
     Write-Host "[$key] $($installationChoices[$key].Name)"
 }
 
 # Get user selection
-$selections = Read-Host "Entrez vos choix séparés par des virgules (ex: 1,3,5,8)"
+$selections = Read-Host "Entrez vos choix sÃ©parÃ©s par des virgules (ex: 1,3,5,8)"
 $selectedKeys = $selections -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $installationChoices.ContainsKey([int]$_) }
 if (-not $selectedKeys) {
     Write-Error "Aucun choix valide. Fin du script."
@@ -205,15 +237,15 @@ foreach ($key in $selectedKeys) {
         Write-Host "Exiting script..."
         exit
     }
-    Write-Host "Exécution de l'installation pour $($installationChoices[[int]$key].Name) ..."
+    Write-Host "ExÃ©cution de l'installation pour $($installationChoices[[int]$key].Name) ..."
     foreach ($script in $installationChoices[[int]$key].Scripts) {
         try {
             $script.Invoke()
-            Write-Host "Étape terminée avec succès." -ForegroundColor Green
+            Write-Host "Ã‰tape terminÃ©e avec succÃ¨s." -ForegroundColor Green
         } catch {
-            Write-Error "Erreur lors de l'exécution d'une étape : $_"
+            Write-Error "Erreur lors de l'exÃ©cution d'une Ã©tape : $_"
         }
     }
 }
 
-Write-Host "Toutes les opérations sont terminées."
+Write-Host "Toutes les opÃ©rations sont terminÃ©es."
