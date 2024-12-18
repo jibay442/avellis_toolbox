@@ -28,7 +28,7 @@ $installationChoices = @{
     1 = @{ Name = "Install Choco"; Scripts = @(
         { Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')) }
     ) };
-    2 = @{ Name = "Installation par dÃ©faut"; Scripts = @(
+    2 = @{ Name = "Default Installation"; Scripts = @(
         { choco install adobereader -y },
         { choco install googlechrome -y },
         { choco install firefox -y },
@@ -44,23 +44,23 @@ $installationChoices = @{
     3 = @{ Name = "Bitdefender"; Scripts = @(
         {
             # Prompt user for Bitdefender URL
-            $url = Read-Host "Veuillez entrer l'URL de tÃ©lÃ©chargement de Bitdefender"
+            $url = Read-Host "Please enter the Bitdefender download URL"
             if (-not $url) {
-                Write-Error "Aucune URL fournie. Annulation de l'installation de Bitdefender."
+                Write-Error "No URL provided. Canceling Bitdefender installation."
                 return
             }
 
             # Extract installation ID from URL if needed
             $idInstall = ($url -split { $_ -eq '[' -or $_ -eq ']' })[1]
-            Write-Host "ID D'installation : $idInstall"
+            Write-Host "Installation ID: $idInstall"
 
-            # TÃ©lÃ©chargement install BitDefender
-            Write-Host "TÃ©lÃ©chargement de BitDefender..."
+            # Download BitDefender
+            Write-Host "Downloading BitDefender..."
             Invoke-WebRequest -Uri $url -OutFile "$env:PUBLIC\Downloads\setup_bd.msi"
 
-            # Installation BitDefender
+            # Install BitDefender
             Start-Process -FilePath "c:\windows\system32\msiexec.exe" -ArgumentList "/i $env:PUBLIC\Downloads\setup_bd.msi /qn GZ_PACKAGE_ID=$idInstall REBOOT_IF_NEEDED=0" -Wait
-            Write-Host "Installation de BitDefender terminÃ©e."
+            Write-Host "BitDefender installation complete."
         }
     ) };
     4 = @{ Name = "Atera"; Scripts = @(
@@ -78,7 +78,7 @@ $installationChoices = @{
                 # Execute the MSI installer silently
                 Write-Host "Launching the installer silently..." -ForegroundColor Yellow
                 Start-Process -FilePath $publicDownloadsPath -Wait
-                Write-Host "Installation d'Atera terminÃ©e."
+                Write-Host "Atera installation complete."
 
             } catch {
                 Write-Host "An error occurred during the download or installation." -ForegroundColor Red
@@ -86,11 +86,11 @@ $installationChoices = @{
         }
     ) };
     5 = @{ Name = "Office 365"; Scripts = @(
-        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=O365BusinessRetail&platform=x64&language=fr-fr&version=O16GA" -OutFile "$env:TEMP\Office365Setup.exe" },
+        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=O365BusinessRetail&platform=x64&language=en-us&version=O16GA" -OutFile "$env:TEMP\Office365Setup.exe" },
         { Start-Process "$env:TEMP\Office365Setup.exe" -Wait }
     ) };
     6 = @{ Name = "Office 2021"; Scripts = @(
-        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=ProPlus2021Retail&platform=x64&language=fr-fr&version=O16GA" -OutFile "$env:TEMP\Office2021Setup.exe" },
+        { Invoke-WebRequest -Uri "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=ProPlus2021Retail&platform=x64&language=en-us&version=O16GA" -OutFile "$env:TEMP\Office2021Setup.exe" },
         { Start-Process "$env:TEMP\Office2021Setup.exe" -Wait }
     ) };
     7 = @{ Name = "Cely Installation"; Scripts = @(
@@ -118,7 +118,7 @@ $installationChoices = @{
         }
     ) };
 8 = @{
-    Name = "Tweaks par dÃ©faut"
+    Name = "Default Tweaks"
     Scripts = @(
         {
             # Remove GameDVR registry entry
@@ -196,56 +196,8 @@ $installationChoices = @{
     )
 }
 
-    9 = @{ Name = "Exit"; Scripts = @() };
+9 = @{ Name = "Exit"; Scripts = @() };
 
-    10 = @{ Name = "Microsoft Activation Scripts (MAS)"; Scripts = @(
-        {
-            Write-Host "Downloading and running activation script..."
-            Set-ExecutionPolicy Bypass -Scope Process -Force
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            iex (irm "https://get.activated.win")
-        }
-    ) };
-
-    11 = @{ Name = "Chris Titus Tech's Windows Utility"; Scripts = @(
-        {
-            Write-Host "Downloading and running Winituls..."
-            Set-ExecutionPolicy Bypass -Scope Process -Force
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            iex (irm "https://christitus.com/win")
-        }
-    ) };
-}
-
-# Display menu options
-Write-Host "SÃ©lectionnez une option d'installation :"
-foreach ($key in $installationChoices.Keys) {
-    Write-Host "[$key] $($installationChoices[$key].Name)"
-}
-
-# Get user selection
-$selections = Read-Host "Entrez vos choix sÃ©parÃ©s par des virgules (ex: 1,3,5,8)"
-$selectedKeys = $selections -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $installationChoices.ContainsKey([int]$_) }
-if (-not $selectedKeys) {
-    Write-Error "Aucun choix valide. Fin du script."
-    exit
-}
-
-# Execute the selected scripts one by one
-foreach ($key in $selectedKeys) {
-    if ($key -eq 9) {
-        Write-Host "Exiting script..."
-        exit
-    }
-    Write-Host "ExÃ©cution de l'installation pour $($installationChoices[[int]$key].Name) ..."
-    foreach ($script in $installationChoices[[int]$key].Scripts) {
-        try {
-            $script.Invoke()
-            Write-Host "Ã‰tape terminÃ©e avec succÃ¨s." -ForegroundColor Green
-        } catch {
-            Write-Error "Erreur lors de l'exÃ©cution d'une Ã©tape : $_"
-        }
-    }
-}
-
-Write-Host "Toutes les opÃ©rations sont terminÃ©es."
+10 = @{ Name = "Microsoft Activation Scripts (MAS)"; Scripts = @(
+    {
+        Write-Host
