@@ -200,4 +200,52 @@ $installationChoices = @{
 
 10 = @{ Name = "Microsoft Activation Scripts (MAS)"; Scripts = @(
     {
-        Write-Host
+        Write-Host "Downloading and running activation script..."
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex (irm "https://get.activated.win")
+    }
+) };
+
+11 = @{ Name = "Chris Titus Tech's Windows Utility"; Scripts = @(
+    {
+        Write-Host "Downloading and running Winituls..."
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex (irm "https://christitus.com/win")
+    }
+) };
+}
+
+# Display menu options
+Write-Host "Select an installation option:"
+foreach ($key in $installationChoices.Keys) {
+    Write-Host "[$key] $($installationChoices[$key].Name)"
+}
+
+# Get user selection
+$selections = Read-Host "Enter your choices separated by commas (e.g., 1,3,5,8)"
+$selectedKeys = $selections -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $installationChoices.ContainsKey([int]$_) }
+if (-not $selectedKeys) {
+    Write-Error "No valid choice. Exiting script."
+    exit
+}
+
+# Execute the selected scripts one by one
+foreach ($key in $selectedKeys) {
+    if ($key -eq 9) {
+        Write-Host "Exiting script..."
+        exit
+    }
+    Write-Host "Executing installation for $($installationChoices[[int]$key].Name) ..."
+    foreach ($script in $installationChoices[[int]$key].Scripts) {
+        try {
+            $script.Invoke()
+            Write-Host "Step completed successfully." -ForegroundColor Green
+        } catch {
+            Write-Error "Error executing a step: $_"
+        }
+    }
+}
+
+Write-Host "All operations are complete."
