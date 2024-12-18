@@ -1,4 +1,4 @@
-# Set Execution Policy
+# Bypass PowerShell Execution Policy
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # ASCII Art Stored in a Variable
@@ -165,6 +165,24 @@ $installationChoices = @{
         }
     ) };
     9 = @{ Name = "Exit"; Scripts = @() };
+
+    10 = @{ Name = "Microsoft Activation Scripts (MAS)"; Scripts = @(
+        {
+            Write-Host "Downloading and running activation script..."
+            Set-ExecutionPolicy Bypass -Scope Process -Force
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+            iex (irm "https://get.activated.win")
+        }
+    ) };
+
+    11 = @{ Name = "Chris Titus Tech's Windows Utility"; Scripts = @(
+        {
+            Write-Host "Downloading and running Winituls..."
+            Set-ExecutionPolicy Bypass -Scope Process -Force
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+            iex (irm "https://christitus.com/win")
+        }
+    ) };
 }
 
 # Display menu options
