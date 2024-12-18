@@ -1,5 +1,5 @@
 # avellis_toolbox
-Our toolbox for brand new windows installation 
+Our toolbox for brand new windows installation with our custom ISO of Windows 11
 
 ## Use the script
 In powershell as admin launch this command : 
